@@ -1,0 +1,7 @@
+Flask
+Flask-SocketIO
+gunicorn
+python-socketio
+Werkzeug
+Jinja2
+google-generativeai

@@ -2,43 +2,47 @@ from flask import Flask
 from flask_socketio import SocketIO
 import os
 
-# Initialize Flask-SocketIO with async mode set to threading for Heroku compatibility
+print("Starting app/__init__.py")
+
 socketio = SocketIO(async_mode='threading')
+print("SocketIO initialized")
 
 def create_app():
-    """
-    Factory function to create and configure the Flask application.
-    Returns the Flask app instance.
-    """
-    # Create Flask app instance with custom template folder
+    print("Entering create_app")
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    print(f"Base dir: {base_dir}")
     template_folder = os.path.join(base_dir, 'templates')
     app = Flask(__name__, template_folder=template_folder)
     print(f"Template folder: {os.path.abspath(app.template_folder)}")
 
-    # Load configuration from config.py
-    config_path = os.path.join(base_dir, 'config.py')
-    app.config.from_pyfile(config_path, silent=True)
+    # Import app_config from config.py
+    from config import app_config
+    print("Imported app_config from config.py")
 
-    # Ensure the instance folder exists (for potential future use)
+    # Apply the configuration
+    app.config.from_object(app_config)
+    print("Config loaded from app_config")
+
     try:
         os.makedirs(app.instance_path, exist_ok=True)
-    except OSError:
-        pass
+        print("Instance path created")
+    except OSError as e:
+        print(f"Error creating instance path: {e}")
 
-    # Secret key for session management (loaded from config.py or set as fallback)
     app.secret_key = app.config.get('SECRET_KEY', 'dev-secret-key-for-testing')
+    print("Secret key set")
 
-    # Initialize Flask-SocketIO with the app
-    socketio.init_app(app, cors_allowed_origins="*")  # Allow cross-origin for testing
+    socketio.init_app(app, cors_allowed_origins="*")
+    print("SocketIO init_app called")
 
-    # Register blueprints and sockets
     from . import routes, sockets
+    print("Imported routes and sockets")
     app.register_blueprint(routes.bp)
-    sockets.init_socketio(socketio)  # Custom function to initialize socket events
+    sockets.init_socketio(socketio)
+    print("Blueprints and sockets registered")
 
     return app
 
 if __name__ == '__main__':
-    # Run the app with SocketIO for local testing (not used in Heroku)
+    print("Running locally")
     socketio.run(app=create_app(), host='0.0.0.0', port=5000, debug=True)

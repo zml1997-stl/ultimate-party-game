@@ -12,7 +12,8 @@ def create_app():
     """
     # Create Flask app instance
     app = Flask(__name__, instance_relative_config=True)
-
+    import os
+    print(f"Template folder: {os.path.abspath(app.template_folder)}")
     # Load configuration from config.py
     app.config.from_pyfile('../config.py', silent=True)
 

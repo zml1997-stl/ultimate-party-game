@@ -15,11 +15,8 @@ def create_app():
     app = Flask(__name__, template_folder=template_folder)
     print(f"Template folder: {os.path.abspath(app.template_folder)}")
 
-    # Import app_config from config.py
     from config import app_config
     print("Imported app_config from config.py")
-
-    # Apply the configuration
     app.config.from_object(app_config)
     print("Config loaded from app_config")
 
@@ -43,6 +40,9 @@ def create_app():
 
     return app
 
+# Create global app instance
+app = create_app()
+
 if __name__ == '__main__':
     print("Running locally")
-    socketio.run(app=create_app(), host='0.0.0.0', port=5000, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
